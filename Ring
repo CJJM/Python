@@ -1,0 +1,22 @@
+# Ring Class, extended from Circle class
+# It's like a washer or annulus
+# Ames Fall 2013
+
+# A Ring is like a Circle, except that it has an inner radius, and the area
+# is calculated differently
+
+# Circumference and distance to origin are the same as Circle
+
+from Circle import *
+
+class Ring(Circle):
+    def __init__(self, center, radius=1, innerRadius=0.5):
+        super(Ring, self).__init__(center, radius)
+        self.innerRadius = innerRadius
+
+    def area(self):
+        return super(Ring, self).area() - math.pi*self.innerRadius**2
+
+    def __str__(self):
+        return super(Ring, self).__str__() + \
+               ", inner radius=" + str(self.innerRadius)
