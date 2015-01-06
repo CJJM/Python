@@ -1,0 +1,32 @@
+# Ames demo, music playing
+
+import thread
+import time
+import winsound # sorry, Windows only
+
+def playSong():
+    do = 523
+    re = 587
+    mi = 659
+    fa = 698
+    sol = 784
+    la = 880
+    ti = 988
+    do2 = 1047
+    skip = do/8
+    while True:
+        for frequency in [do, mi, mi, mi/4, mi, sol, sol, sol/4, re, fa, fa, fa/4, la, ti, ti , ti/4]:
+            winsound.Beep(frequency, 250)
+
+def count(startVal):
+    x = startVal
+    while True:
+        time.sleep(0.5)
+        x += 1
+        print "x is now", x
+
+ 
+thread.start_new_thread(playSong, ())
+thread.start_new_thread(count, (10,))
+print "Two threads started."
+
