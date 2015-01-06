@@ -1,0 +1,30 @@
+# Connor Maloney
+# Christmas Tree Main
+
+from ChristmasTree import *
+from Tkinter import *
+
+
+window = Tk()
+window.title("Merry Christmas")
+
+
+background = PhotoImage(file="tree.gif")
+
+
+width = background.width()
+height = background.height()
+
+
+canvas = Canvas(window, width=width, height=height)
+canvas.grid(row=0, column=0)
+
+backgroundImage = canvas.create_image(width/2, height/2, image=background)
+
+for i in range(10):
+    Ornament(canvas)
+    BlinkingLight(canvas)
+    
+Star(canvas)
+
+window.mainloop()
