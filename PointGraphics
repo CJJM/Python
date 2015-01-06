@@ -1,0 +1,26 @@
+# Draw graph of y=sin(x)
+
+import math
+from Tkinter import *
+from Point import *
+
+window = Tk()
+window.title("Graphing Demo, using points")
+
+canvas = Canvas(window, width=400, height=400)
+canvas.grid(row=0, column=0)
+
+def sinDegrees(angle):
+    return math.sin(angle/180.*math.pi)     # convert degrees to radians
+
+
+points = []
+for x in range(0, 360):
+    y = sinDegrees(x)
+    p = Point(x, -y*100 +200)
+    points.append(p)
+
+for p in points:
+    p.plot(canvas)
+
+window.mainloop()
