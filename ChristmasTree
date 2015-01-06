@@ -1,0 +1,66 @@
+# Connor Maloney
+# Christmas Tree Homework Assignment
+
+from Point import *
+from Tkinter import * 
+import random
+import time
+import thread
+
+photoList = []
+
+class Ornament(object):
+    def __init__(self, canvas):
+        self.canvas = canvas
+        self.pA = Point(87,20)
+        self.pB = Point(12,270)
+        self.pC = Point(162,270)
+        self.choosePoint = self.choosePointInTriangle(self.pA,self.pB,self.pC)
+        self.createImage()
+  
+    def createImage(self):
+        ornament = PhotoImage(file="smallOrnament.gif")
+        photoList.append(ornament) 
+        self.canvas.create_image(self.choosePoint.x, self.choosePoint.y,\
+                                 image = ornament)
+                
+    def choosePointInTriangle(self, pA, pB, pC):
+        a = random.random() 
+        b = random.random() 
+        if a+b > 1: 
+            a = 1-a 
+            b = 1-b 
+        c = 1-a-b 
+        x = int(a*pA.x + b*pB.x + c*pC.x) 
+        y = int(a*pA.y + b*pB.y + c*pC.y) 
+        return Point(x,y) 
+        
+class Star(Ornament):
+    def createImage(self):
+        global photoList
+        star = PhotoImage(file= "star.gif")
+        photoList.append(star)
+        self.canvas.create_image(self.pA.x, self.pA.y, image = star)
+        
+class Light(Ornament):
+    def createImage(self):
+        color = random.randrange(2)
+        if color == 0:
+            fill = "red"
+        else:
+            fill = "green" 
+        self.oval = self.canvas.create_oval(self.choosePoint.x, self.choosePoint.y,\
+                                self.choosePoint.x + 5, self.choosePoint.y + 5, \
+                                fill = fill) 
+    
+class BlinkingLight(Light):
+    def createImage(self):
+        super(BlinkingLight, self).createImage()
+        thread.start_new_thread(self.blink, ()) 
+        
+    def blink(self):
+        while True:
+            time.sleep(random.random())
+            self.canvas.itemconfig(self.oval, state = HIDDEN)
+            time.sleep(random.random())
+            self.canvas.itemconfig(self.oval, state = NORMAL)
