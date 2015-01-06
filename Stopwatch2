@@ -1,0 +1,45 @@
+import time
+import thread
+from Tkinter import *
+
+
+class Stopwatch:
+    def __init__(self, timeDisplay):
+        self.timeDisplay = timeDisplay
+        self.stopTime = 0
+        self.totalTime = 0
+        self.elapsedTime = 0 
+        self.track = False 
+        self.timeDisplay.insert(0, str(self)) 
+
+    def __str__(self):
+        self.totalTime = self.elapsedTime + self.stopTime
+        hour = self.totalTime / 60 / 60
+        minute = self.totalTime / 60 % 60 
+        second = self.totalTime % 60
+        return " %d:%02d:%04.1f" % (hour, minute, second) 
+
+    def start(self):
+        if self.track == False:
+            self.track=True
+            thread.start_new_thread(self.timeChanges, ())
+
+    def stop(self): 
+        self.track = False
+        self.elapsedTime += self.stopTime
+
+    def clear(self):
+        self.stop()
+        self.stopTime = 0
+        self.elapsedTime = 0
+        self.timeDisplay.delete(0, END)
+        self.timeDisplay.insert(0, str(self))
+
+    def timeChanges(self):
+        start = time.time()
+        while self.track == True:
+            currentTime = time.time()
+            self.stopTime = currentTime - start
+            self.timeDisplay.delete(0, END)
+            self.timeDisplay.insert(0, str(self))
+            time.sleep(.1)
