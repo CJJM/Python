@@ -1,0 +1,51 @@
+# Connor Maloney
+# Assignment 12, Spell Checker GUI, 12/5/13
+
+from Tkinter import *
+import tkFileDialog
+import re
+from SpellCheckerClass import *
+
+spellChecker = SpellCheckerClass()
+
+def loadFile():
+    fileToReadFrom = tkFileDialog.askopenfilename()
+    fileIn = open(fileToReadFrom, 'r')
+    content = fileIn.read()
+    topText.delete("0.0", END)
+    topText.insert("0.0", content)
+    fileIn.close()
+    
+def saveFile():
+    fileToWriteTo = tkFileDialog.asksaveasfilename()
+    fileOut = open(fileToWriteTo, "w")
+    fileOut.write(topText.get("0.0", END))
+    fileOut.close()
+
+def checkSpelling():
+    text = topText.get("0.0", END)
+    words = re.findall("[a-z]+", text.lower())
+    for word in words:
+        if spellChecker.isWordInDictionary(word)==False:
+            bottomText.insert(END, word + " ")          # spaces between mispelled words
+
+window = Tk()
+window.title("Spell Checker")
+
+topLabel = Label(window, text = "Text To Check")
+topLabel.grid(row=0, column=1)
+
+topText = Text(window, height=12)
+topText.grid(row=1, column=0, columnspan=3)
+
+middleLabel = Label(window, text="Mispelled Words")
+middleLabel.grid(row=2, column=1)
+
+bottomText = Text(window, height=12)
+bottomText.grid(row=3, column=0, columnspan=3)
+
+Button(window, text="Check Spelling", command=checkSpelling).grid(row=4, column=0)
+Button(window, text="Load File", command=loadFile).grid(row=4, column=1)
+Button(window, text="Save File", command=saveFile).grid(row=4, column=2)
+
+window.mainloop()
