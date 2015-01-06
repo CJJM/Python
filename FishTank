@@ -1,0 +1,57 @@
+# Connor Maloney, Assignment #6
+# Creates a fishtank with moving fish based on .gif files
+
+from Tkinter import *
+import random
+
+# create GUI
+window = Tk()
+window.title("Fish Tank")
+
+tankBackground = PhotoImage(file="tank.gif")
+fishRight = PhotoImage(file="fishRight.gif")
+fishLeft = PhotoImage(file="fishLeft.gif")
+
+windowHeight = 525      # based on size of tank gif
+windowWidth = 700
+x = windowWidth/2
+y = windowHeight/2
+
+canvas = Canvas(window, width=windowWidth, height=windowHeight)
+canvas.grid(row=0, column=0, columnspan=5, sticky="NSEW")
+canvas.create_image(windowWidth/2, windowHeight/2, image=tankBackground)
+
+def updateFishFunction(start, x, y, dx, dy):
+    if x >= 685:        # for one side of the vertical wall
+        start = canvas.coords(start, -1000, -1000)
+        start = canvas.create_image(x, y, image=fishLeft)
+        dx = dx * -1
+    if x <= 15:         # for the other side of the wall for the fish to bounce off
+        start = canvas.coords(start, -1000, -1000)
+        start = canvas.create_image(x, y, image=fishRight)
+        dx = dx * -1
+    if y >= 510 or y <= 15:         # to bounce off the top but without switching images
+        dy = dy * -1
+    x = x + dx
+    y = y + dy
+    canvas.coords(start, x, y)
+    canvas.after(100, updateFishFunction, start, x, y, dx, dy)
+
+def addFishFunction():
+    x = random.randrange(685)
+    y = random.randrange(485)
+    dx = random.randrange(-3, 3)        # velocity of the fish
+    dy = random.randrange(-3, 3)        
+    if dx < 0:
+        start = canvas.create_image(random.randrange(680), random.randrange(500), image=fishLeft)
+    elif dx > 0:
+        start = canvas.create_image(random.randrange(680), random.randrange(500), image=fishRight)
+    else:
+        dx = 2
+        start = canvas.create_image(random.randrange(680), random.randrange(500), image=fishRight)
+    updateFishFunction(start, x, y, dx, dy)
+
+addFishButton = Button(window, text="Add Fish", command=addFishFunction)
+addFishButton.grid(row=1, column=2, sticky="NSEW")          # column 2 and earlier columnspan 5 to make smaller button
+
+window.mainloop()
