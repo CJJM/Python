@@ -1,0 +1,33 @@
+# Connor Maloney
+# Assignment 12, Spell Checker Class, 12/5/13
+
+import Assignment12
+import tkFileDialog
+import re
+
+class SpellCheckerClass:
+
+    def __init__(self):
+        fin = open('dictionary.txt', 'r')
+        content = fin.read()
+        self.lst = re.findall("[a-z]+", content.lower())
+        list.sort(self.lst)
+        
+    def binarySearch(self, word, first, last):
+        if last < first:            # to ensure there aren't mistakes
+            return False
+        else:
+            mid = (first + last)/2
+        midWord = self.lst[mid]      # integer converted into word here   
+        if midWord == word:
+            return True
+        if midWord > word:
+            return self.binarySearch(word, first, mid-1)        # recursion with new argument
+        elif midWord < word:
+            return self.binarySearch(word, mid+1, last)
+
+    def isWordInDictionary(self, word):
+        if self.binarySearch(word, 0, len(self.lst)-1)==False:
+            return False
+
+SpellCheckerClass()
