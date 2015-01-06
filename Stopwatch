@@ -1,0 +1,36 @@
+# Connor Maloney, 11/15/13
+# Stopwatch creation with Classes
+
+import time
+import thread
+
+class Stopwatch:
+
+    def __init__(self, x=0):
+        self.x = x
+
+    def timeDisplay(self):
+        global timeDisplay
+        timeDisplay.insert("0:00:00.0")
+        self.d = self.x%10
+        self.e = self.x/10
+        self.a = int(e/60)
+        self.bc = int(e%60)
+        timeDisplay.insert(str(self.a)+"."+('%02d' % self.bc)+"."+str(self.d))
+                           
+    def start(self):
+        time.sleep(0.1)
+        thread.start_new_thread(start, (100,))
+        time.sleep(0.1)
+
+    def stop(self):
+        if start:
+            if self.x%10==0:
+                start=False
+        attempts += 1
+
+    def clear(self):
+        stopwatch.stop()
+        self.time = 0
+        format(time)
+                        
