@@ -1,0 +1,9 @@
+# Point class, 11/1/13
+
+
+# Points have x, y location
+class Point:
+    
+    def __init__(self, x=0, y=0):
+        self.x = x          # self.x is the attribute that belongs to self, x is the regular variable
+        self.y = y
