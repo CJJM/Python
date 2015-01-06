@@ -1,0 +1,74 @@
+# Tic Tac Toe, text based (no gui)
+# Demo of 2D arrays
+
+# define some constants
+EMPTY = "."
+X = "X"
+O = "O"
+
+board = []
+
+def clearBoard():
+    global board
+    board = []
+    for row in range(3):
+        board.append([])
+        for col in range(3):
+            board[row].append(EMPTY)
+    # Could also be done like this:
+    #board = [ [EMPTY, EMPTY, EMPTY],
+    #          [EMPTY, EMPTY, EMPTY],
+    #          [EMPTY, EMPTY, EMPTY] ]
+
+def showBoard():
+    print # empty line before
+    for row in range(3):
+        for col in range(3):
+            print board[row][col],
+        print # end of row
+    print # empty line after
+
+def checkRows(who):
+    for row in range(3):
+        if board[row][0]==who and board[row][1]==who and board[row][2]==who:
+            return True
+    return False
+
+def checkCols(who):
+    for col in range(3):
+        if board[0][col]==who and board[1][col]==who and board[2][col]==who:
+            return True
+    return False
+
+def checkDiagonals(who):
+    d1 = board[0][0]==who and board[1][1]==who and board[2][2]==who
+    d2 = board[2][0]==who and board[1][1]==who and board[0][2]==who
+    return d1 or d2
+
+def checkWin(who):
+    return checkRows(who) or checkCols(who) or checkDiagonals(who)
+
+def play():
+    turn = X     # X always plays first
+    clearBoard()
+    while True:
+        if checkWin(X):
+            print "X wins!"
+            return
+        if checkWin(O):
+            print "O wins!"
+            return
+        row = int(raw_input(turn + ", what row? "))
+        col = int(raw_input(turn + ", what col? "))
+        if board[row][col] != EMPTY:
+            print "You Cheated!"
+            print turn, "loses!"
+            return
+        board[row][col] = turn
+        showBoard()
+        if turn==X:
+            turn = O
+        else:
+            turn = X
+
+play() # start the game
