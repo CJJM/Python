@@ -1,0 +1,253 @@
+# Connor Maloney, Homework 9
+# Flow solver that makes paths between endpoints
+
+from Tkinter import *
+
+window = Tk()
+window.title("Flow Solver")
+
+empty = PhotoImage(file = "CellImages/Empty.gif")
+empty.goesUp = empty.goesDown = empty.goesRight = empty.goesLeft = True
+
+wall = PhotoImage(file = "CellImages/Wall.gif")
+wall.goesUp = wall.goesDown = wall.goesRight = wall.goesLeft = False
+
+colorList = ["blue", "green", "red", "yellow", "cyan", "orange", "magenta", "pink", "white"]
+colorsUsed = 0
+
+endPointFileList = ["blueEndpoint.gif",
+                    "greenEndpoint.gif",
+                    "redEndpoint.gif",
+                    "yellowEndpoint.gif",
+                    "cyanEndpoint.gif",
+                    "orangeEndpoint.gif",
+                    "magentaEndpoint.gif",
+                    "pinkEndpoint.gif",
+                    "whiteEndpoint.gif"   ]
+
+tileList = []
+fileList = ["blueHorizontal.gif",    "blueQ1.gif",    "blueQ2.gif",    "blueQ3.gif",    "blueQ4.gif",    "blueVertical.gif",
+            "greenHorizontal.gif",   "greenQ1.gif",   "greenQ2.gif",   "greenQ3.gif",   "greenQ4.gif",   "greenVertical.gif",
+            "redHorizontal.gif",     "redQ1.gif",     "redQ2.gif",     "redQ3.gif",     "redQ4.gif",     "redVertical.gif",
+            "yellowHorizontal.gif",  "yellowQ1.gif",  "yellowQ2.gif",  "yellowQ3.gif",  "yellowQ4.gif",  "yellowVertical.gif",
+            "cyanHorizontal.gif",    "cyanQ1.gif",    "cyanQ2.gif",    "cyanQ3.gif",    "cyanQ4.gif",    "cyanVertical.gif",
+            "orangeHorizontal.gif",  "orangeQ1.gif",  "orangeQ2.gif",  "orangeQ3.gif",  "orangeQ4.gif",  "orangeVertical.gif",
+            "magentaHorizontal.gif", "magentaQ1.gif", "magentaQ2.gif", "magentaQ3.gif", "magentaQ4.gif", "magentaVertical.gif",
+            "pinkHorizontal.gif",    "pinkQ1.gif",    "pinkQ2.gif",    "pinkQ3.gif",    "pinkQ4.gif",    "pinkVertical.gif",
+            "whiteHorizontal.gif",   "whiteQ1.gif",   "whiteQ2.gif",   "whiteQ3.gif",   "whiteQ4.gif",   "whiteVertical.gif"    ]
+
+endPoints = []
+for fileName in endPointFileList:
+    photo = PhotoImage(file = "CellImages/" + fileName)
+    photo.image = fileName
+    photo.goesUp = photo.goesDown = photo.goesLeft = photo.goesRight = True
+    endPoints.append(photo)
+    for color in colorList:
+        if fileName.startswith(color):
+            photo.color = color
+            break;
+
+for filename in fileList:
+    photo = PhotoImage(file =  "CellImages/" + filename)
+    if "Q1" in filename or "Q2" in filename or "Vertical" in filename:
+        photo.goesUp = True
+    else:
+        photo.goesUp = False
+    if "Q3" in filename or "Q4" in filename or "Vertical" in filename:
+        photo.goesDown = True
+    else:
+        photo.goesDown = False
+    if "Q1" in filename or "Q4" in filename or "Horizontal" in filename:
+        photo.goesRight = True
+    else:
+        photo.goesRight = False
+    if "Q2" in filename or "Q3" in filename or "Horizontal" in filename:
+        photo.goesLeft = True
+    else:
+        photo.goesLeft = False
+    for color in colorList:
+        if color in filename:
+            photo.color = color
+    tileList.append(photo)
+      
+gridSize = 6
+cells = []
+clickCount = 0
+for row in range(gridSize+2):
+    cells.append([])
+    for col in range(gridSize+2):
+        if row==0 or row==gridSize+1 or col==0 or col==gridSize+1:
+            button = Button(window, image=wall)
+            button.image = wall
+        else:
+            button = Button(window, image=empty)
+            button.grid(row=row-1, column=col-1)
+            button.image = empty
+            def respond(b=button):
+                global clickCount, colorsUsed, endPoints
+                b.config(image=endPoints[clickCount/2])
+                b.image=endPoints[clickCount/2]
+                clickCount += 1
+                colorsUsed = clickCount/2
+            button.config(command=respond)
+        cells[row].append(button)
+
+def isAllowedRight(curr, right):
+    if right==empty:
+        return True
+    if curr.goesRight and right.goesLeft and curr.color==right.color:
+        return True
+    if not curr.goesRight and not right.goesLeft:
+        return True
+    if not curr.goesRight and right in endPoints:
+        return True
+    return False
+
+def isAllowedUp(curr, up):
+    if up==empty:
+        return True
+    if curr.goesUp and up.goesDown and curr.color==up.color:
+        return True
+    if not curr.goesUp and not up.goesDown:
+        return True
+    if not curr.goesUp and up in endPoints:
+        return True
+    return False
+
+def isAllowedLeft(curr, left):
+    if left==empty:
+        return True
+    if curr.goesLeft and left.goesRight and curr.color==left.color:
+        return True
+    if not curr.goesLeft and not left.goesRight:
+        return True
+    if not curr.goesLeft and left in endPoints:
+        return True
+    return False
+
+def isAllowedDown(curr, down):
+    if down==empty:
+        return True
+    if curr.goesDown and down.goesUp and curr.color==down.color:
+        return True
+    if not curr.goesDown and not down.goesUp:
+        return True
+    if not curr.goesDown and down in endPoints:
+        return True
+    return False
+
+def checkCell(row, col):
+    global cells
+    curr = cells[row][col].image
+    right = cells[row][col+1].image
+    up = cells[row-1][col].image
+    left = cells[row][col-1].image
+    down = cells[row+1][col].image
+    if isAllowedRight(curr, right)==True and isAllowedUp(curr, up)==True \
+    and isAllowedLeft(curr, left)==True and isAllowedDown(curr, down)==True:
+        return True
+    else:
+        return False
+
+def solve():
+    for row in range(1, gridSize +1):
+        for col in range(1, gridSize+1):
+            if cells[row][col].image is empty:
+                if take(row, col):
+                    if checkEndpoints():
+                        return True
+                return False
+    return True
+                
+def checkEndpoints():
+    global cells
+    for row in range(1, gridSize +1):
+        for col in range(1, gridSize+1):
+            adjacentEmptyCells = 0
+            adjacentEntryCells = 0
+            right = cells[row][col+1].image
+            up = cells[row-1][col].image
+            left = cells[row][col-1].image
+            down = cells[row+1][col].image
+            if cells[row][col].image in endPoints:
+                if right == empty:
+                    adjacentEmptyCells += 1
+                if right.goesLeft and right != empty and right not in endPoints:
+                    adjacentEntryCells += 1   
+                if up == empty:
+                    adjacentEmptyCells += 1
+                if up.goesDown and up != empty and up not in endPoints:
+                    adjacentEntryCells += 1    
+                if left == empty:
+                    adjacentEmptyCells += 1
+                if left.goesRight and left != empty and left not in endPoints:
+                    adjacentEntryCells += 1
+                if down == empty:
+                    adjacentEmptyCells += 1
+                if down.goesUp and down != empty and down not in endPoints:
+                    adjacentEntryCells += 1
+                if adjacentEntryCells == 0 and adjacentEmptyCells == 0:
+                    return False
+                if adjacentEntryCells >= 2:
+                    return False
+    return True
+
+counter = 0
+
+def show():
+    global counter
+    counter += 1
+    if counter%500 == 0:
+        window.update_idletasks()
+
+def take(row, col):
+    for photo in tileList:
+        cells[row][col].config(image=photo)
+        cells[row][col].image = photo
+        show()
+        if checkCell(row, col):
+            if checkEndpoints():
+                if solve():
+                    return True
+    cells[row][col].config(image=empty)
+    cells[row][col].image= empty
+    return False
+
+def testCase():
+    global cells, empty
+    for row in range(1, gridSize + 1):
+        for col in range(1, gridSize + 1):
+            cells[row][col].config(image=empty)
+            cells[row][col].image = empty
+    cells[1][1].config(image = endPoints[0])
+    cells[1][1].image = endPoints[0]
+    cells[1][6].config(image = endPoints[0])
+    cells[1][6].image = endPoints[05]
+    cells[2][1].config(image = endPoints[1])
+    cells[2][1].image = endPoints[1]
+    cells[2][6].config(image = endPoints[1])
+    cells[2][6].image = endPoints[1]
+    cells[3][1].config(image = endPoints[2])
+    cells[3][1].image = endPoints[2]
+    cells[3][6].config(image = endPoints[2])
+    cells[3][6].image = endPoints[2]
+    cells[4][1].config(image = endPoints[3])
+    cells[4][1].image = endPoints[3]
+    cells[4][4].config(image = endPoints[3])
+    cells[4][4].image = endPoints[3]
+    cells[5][1].config(image = endPoints[4])
+    cells[5][1].image = endPoints[4]
+    cells[5][4].config(image = endPoints[4])
+    cells[5][4].image = endPoints[4]
+    cells[6][1].config(image = endPoints[5])
+    cells[6][1].image = endPoints[5]
+    cells[6][4].config(image = endPoints[5])
+    cells[6][4].image = endPoints[5]
+
+solveButton = Button(window, text="Solve", command=solve)
+solveButton.grid(row=(gridSize+1), column=0, columnspan=2, sticky="NSEW")
+
+testCaseButton = Button(window, text="Test Case", command=testCase)
+testCaseButton.grid(row=(gridSize+1), column=4, columnspan=2, sticky="NSEW")
+
+window.mainloop()
