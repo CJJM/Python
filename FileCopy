@@ -1,0 +1,29 @@
+# Demo of copying a file
+
+from Tkinter import *
+import tkFileDialog
+
+window = Tk()
+window.withdraw() # don't need the window visible, hide it (rarely used method)
+
+def copyFile():
+    try:
+        fileToReadFrom = tkFileDialog.askopenfilename()
+        print "file to read from:", fileToReadFrom
+        fin = open(fileToReadFrom, 'r') #read from
+        content = fin.read()
+        fin.close()
+    except:
+        print "unable to read file"
+        return
+
+    try:
+        fileToWriteTo = tkFileDialog.asksaveasfilename()
+        fout = open(fileToWriteTo, "w")
+        fout.write(content)
+        fout.close()
+    except:
+        print "unable to write file, sorry"
+        return
+
+copyFile()
