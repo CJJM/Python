@@ -1,0 +1,18 @@
+# Read a web page
+
+import urllib2
+import re # regular expressions
+
+def scrape(site):
+    print "Scraping:", site
+    fin = urllib2.urlopen(site, "r")
+    content = fin.read()
+    fin.close() # finished using the site
+
+    # print content
+
+    # look for "AAPL","Apple Inc.","520.39"
+    match = re.search('"AAPL","Apple Inc.","([0-9\\.]+)"', content)
+    print "Apple stock price is:", match.group(1)    
+
+scrape("http://google.com/finance?q=aapl")
