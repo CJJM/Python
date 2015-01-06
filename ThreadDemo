@@ -1,0 +1,36 @@
+##import time
+##
+##time.time()
+### seconds since time began
+
+# Thread Demo
+
+import time
+import thread
+
+# simple counting functions
+
+def count(startVal):
+    x = startVal
+    while True:
+        x += 1
+        print "x is now", x
+        time.sleep(0.5)
+
+def letterCount():
+    letter = 'a'
+    while True:
+        if letter == 'z':
+            letter = 'a'
+        else:
+            letter = chr(ord(letter) + 1)
+        print "letter is now", letter
+        time.sleep(0.5)
+
+thread.start_new_thread(count, (6,)) # comma needed because it denotes tuple instead of just 6
+print "Count function started"  # this WILL be printed
+
+time.sleep(0.5)
+
+thread.start_new_thread(letterCount, ())
+print "Letter count function has started"
