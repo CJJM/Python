@@ -1,0 +1,265 @@
+# HW8, Connor Maloney
+# Photoshop program that manipulates the provided image
+
+from Tkinter import *
+import math
+
+window = Tk()
+window.title("BC Photoshop")
+import BCImage
+
+photo = None
+
+def readFunction():
+    global photo
+    photo = PhotoImage(file = entry.get())
+    canvas.create_image(photo.width()/2, photo.height()/2, image=photo)
+    canvas.config(width = photo.width(), height = photo.height())
+
+def grayFunction():
+   global photo
+   pixels = BCImage.getPixels(photo)
+   for row in range(photo.height()):
+       for col in range(photo.width()):
+           r = pixels[row][col][0]
+           g = pixels[row][col][1]
+           b = pixels[row][col][2]
+           gray = (r+g+b)/3
+           pixels[row][col] = [gray, gray, gray]
+   BCImage.setPixels(photo, pixels)
+
+def edgeDetectionFunction():
+    global photo
+    pixels = BCImage.getPixels(photo)
+    for row in range(photo.height()):
+        for col in range(photo.width()-1):
+            rRight = pixels[row][col+1][0]
+            gRight = pixels[row][col+1][1]
+            bRight = pixels[row][col+1][2]
+            r = pixels[row][col][0]
+            g = pixels[row][col][1]
+            b = pixels[row][col][2]
+            gray1 = r*.3+g*.59+b*.11
+            gray2 = rRight*.3+gRight*.59+bRight*.11
+            if abs(gray2 - gray1) >= 10:
+                pixels[row][col] = [255,255,255]
+            else:
+                pixels[row][col] = [0,0,0]
+    BCImage.setPixels(photo, pixels)
+
+
+def blurFunction():
+   global photo
+   pixels = BCImage.getPixels(photo)
+   for row in range(photo.height()-1):
+       for col in range(photo.width()-1):           
+           r = pixels[row][col][0]
+           rLeft = pixels[row-1][col][0]
+           rLeftUp = pixels[row-1][col-1][0]
+           rUp = pixels[row][col-1][0]
+           rRightUp = pixels[row+1][col-1][0]
+           rRight = pixels[row+1][col][0]
+           rRightDown = pixels[row+1][col+1][0]
+           rDown = pixels[row][col+1][0]
+           rLeftDown = pixels[row-1][col+1][0]
+           r2 = (r+rLeft+rLeftUp+rUp+rRightUp+rRight+rRightDown+rDown+rLeftDown)/9
+           g = pixels[row][col][1]
+           gLeft = pixels[row-1][col][1]
+           gLeftUp = pixels[row-1][col-1][1]
+           gUp = pixels[row][col-1][1]
+           gRightUp = pixels[row+1][col-1][1]
+           gRight = pixels[row+1][col][1]
+           gRightDown = pixels[row+1][col+1][1]
+           gDown = pixels[row][col+1][1]
+           gLeftDown = pixels[row-1][col+1][1]
+           g2 = (g+gLeft+gLeftUp+gUp+gRightUp+gRight+gRightDown+gDown+gLeftDown)/9
+           b = pixels[row][col][2]
+           bLeft = pixels[row-1][col][2]
+           bLeftUp = pixels[row-1][col-1][2]
+           bUp = pixels[row][col-1][2]
+           bRightUp = pixels[row+1][col-1][2]
+           bRight = pixels[row+1][col][2]
+           bRightDown = pixels[row+1][col+1][2]
+           bDown = pixels[row][col+1][2]
+           bLeftDown = pixels[row-1][col+1][2]
+           b2 = (b+bLeft+bLeftUp+bUp+bRightUp+bRight+bRightDown+bDown+bLeftDown)/9
+           pixels[row][col] = [r2, g2, b2]
+   BCImage.setPixels(photo, pixels)
+
+def pixelateFunction():
+    global photo
+    pixels = BCImage.getPixels(photo)
+    for row in range(photo.height()):
+        for col in range(photo.width()):
+            r = pixels[row-row%10][col-col%10][0]
+            g = pixels[row-row%10][col-col%10][1]
+            b = pixels[row-row%10][col-col%10][2]
+            pixels[row][col] = [r, g, b]
+    BCImage.setPixels(photo,pixels)
+
+def sharpenFunction():
+    global photo
+    pixels = BCImage.getPixels(photo)
+    blurFunction()
+    blurredPixels = BCImage.getPixels(photo)
+    for row in range(photo.height()):
+        for col in range(photo.width()):
+            r = pixels[row][col][0] + (pixels[row][col][0] - blurredPixels[row][col][0])
+            if r >255:
+                r = 255
+            elif r <0:
+                r =0
+            g = pixels[row][col][1] + (pixels[row][col][1] - blurredPixels[row][col][1])
+            if g > 255:
+                g =255
+            elif g < 0:
+                g = 0
+            b = pixels[row][col][2] + (pixels[row][col][2] - blurredPixels[row][col][2])
+            if b > 255:
+                b = 255
+            elif b < 0:
+                b = 0
+            pixels[row][col] = [r, g, b]
+    BCImage.setPixels(photo, pixels)
+
+def flipHFunction():
+    global photo
+    pixels = BCImage.getPixels(photo)
+    for row in range (photo.height()):
+        for col in range(photo.width()/2):
+            newpixel = []
+            newpixel[:] = pixels[row][photo.width()-1-col]
+            newpixel2=[]
+            newpixel2[:]= pixels[row][col]
+            pixels[row][col][:] = newpixel
+            pixels[row][photo.width()-1-col][:] = newpixel2[:]
+    BCImage.setPixels(photo, pixels)
+
+def flipVFunction():
+    global photo
+    pixels = BCImage.getPixels(photo)
+    for row in range (photo.height()/2):
+        for col in range(photo.width()):
+            newpixel = []
+            newpixel[:] = pixels[photo.height()-1-row][col]
+            newpixel2=[]
+            newpixel2[:]= pixels[row][col]
+            pixels[row][col][:] = newpixel
+            pixels[photo.height()-1-row][col][:] = newpixel2[:]
+    BCImage.setPixels(photo, pixels)
+
+def lightenFunction():
+    global photo
+    pixels = BCImage.getPixels(photo)
+    newR = 0
+    newG = 0
+    newB = 0
+    for row in range(photo.height()):
+        for col in range(photo.width()):
+            r = pixels[row][col][0]
+            g = pixels[row][col][1]
+            b = pixels[row][col][2]
+            newR = (r/255.)**.8 * 255
+            newG = (g/255.)**.8 * 255
+            newB = (b/255.)**.8 * 255
+            pixels[row][col] = [newR, newG, newB]
+    BCImage.setPixels(photo, pixels)
+
+def darkenFunction():
+    global photo
+    pixels = BCImage.getPixels(photo)
+    newR = 0
+    newG = 0
+    newB = 0
+    for row in range(photo.height()):
+        for col in range(photo.width()):
+            r = pixels[row][col][0]
+            g = pixels[row][col][1]
+            b = pixels[row][col][2]
+            newR = (r/255.)**(1/.8) * 255
+            newG = (g/255.)**(1/.8) * 255
+            newB = (b/255.)**(1/.8) * 255
+            pixels[row][col] = [newR, newG, newB]
+    BCImage.setPixels(photo, pixels)
+
+def colorBlindFunction():
+    global photo
+    pixels = BCImage.getPixels(photo)
+    newG = 0
+    newB = 0
+    for row in range(photo.height()):
+        for col in range(photo.width()):
+            r = pixels[row][col][0]
+            g = pixels[row][col][1]
+            b = pixels[row][col][2]
+            newG = (g + b)/2
+            newB = (g + b)/2
+            pixels[row][col] = [r, newG, newB]
+    BCImage.setPixels(photo, pixels)
+
+def saturateFunction():
+    global photo
+    pixels = BCImage.getPixels(photo)
+    for row in range(photo.height()):
+        for col in range(photo.width()):
+            r = pixels[row][col][0]
+            if r >= 128:
+                r = 255
+            else:
+                r = 0
+            g = pixels[row][col][1]
+            if g >= 128:
+                g = 255
+            else:
+                g = 0
+            b = pixels[row][col][2]
+            if b >= 128:
+                b = 255
+            else:
+                b = 0
+            pixels[row][col] = [r, g, b]
+    BCImage.setPixels(photo, pixels)
+    
+canvas = Canvas(window, width=200, height=200)
+canvas.grid(row=0, column=0, columnspan=5, sticky="NSEW")
+
+entry = Entry(window)
+entry.grid(row=1, column=0, columnspan=3, sticky="NSEW")
+
+readButton = Button(window, text="Read", command=readFunction)
+readButton.grid(row=1, column=3, columnspan=2, sticky="NSEW")
+
+grayButton = Button(window, text="Gray", command=grayFunction)
+grayButton.grid(row=2, column=0, sticky="NSEW")
+
+blurButton = Button(window, text="Blur", command=blurFunction)
+blurButton.grid(row=2, column=1, sticky="NSEW")
+
+lightenButton = Button(window, text="Lighten", command=lightenFunction)
+lightenButton.grid(row=2, column=2, sticky="NSEW")
+
+darkenButton = Button(window, text="Darken", command=darkenFunction)
+darkenButton.grid(row=2, column=3, sticky="NSEW")
+
+pixelateButton = Button(window, text="Pixelate", command=pixelateFunction)
+pixelateButton.grid(row=2, column=4, sticky="NSEW")
+
+sharpenButton = Button(window, text="Sharpen", command=sharpenFunction)
+sharpenButton.grid(row=3, column=0, sticky="NSEW")
+
+saturateButton = Button(window, text="Saturate", command=saturateFunction)
+saturateButton.grid(row=3, column=1, sticky="NSEW")
+
+colorBlindButton = Button(window, text="Color Blind", command=colorBlindFunction)
+colorBlindButton.grid(row=3, column=2, sticky="NSEW")
+
+flipHButton = Button(window, text="FlipH", command=flipHFunction)
+flipHButton.grid(row=3, column=3, sticky="NSEW")
+
+flipVButton = Button(window, text="FlipV", command=flipVFunction)
+flipVButton.grid(row=3, column=4, sticky="NSEW")
+
+edgeDetectionButton = Button(window, text="Edge Detection", command=edgeDetectionFunction)
+edgeDetectionButton.grid(row=4, column=3, sticky="NSWE")
+
+window.mainloop()
